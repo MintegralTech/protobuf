@@ -11,13 +11,11 @@
 package proto3_proto
 
 import (
+	fmt "fmt"
 	proto2_proto "github.com/MintegralTech/protobuf/internal/testprotos/proto2_proto"
-	proto "github.com/MintegralTech/protobuf/proto"
-	any "github.com/MintegralTech/protobuf/ptypes/any"
-	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
-	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	reflect "reflect"
-	sync "sync"
+	proto "github.com/golang/protobuf/proto"
+	anypb "google.golang.org/protobuf/types/known/anypb"
+	math "math"
 )
 
 const (

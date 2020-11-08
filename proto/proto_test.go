@@ -24,7 +24,7 @@ import (
 
 	pb2 "github.com/MintegralTech/protobuf/internal/testprotos/proto2_proto"
 	pb3 "github.com/MintegralTech/protobuf/internal/testprotos/proto3_proto"
-	tspb "github.com/MintegralTech/protobuf/ptypes/timestamp"
+	tspb "github.com/golang/protobuf/ptypes/timestamp"
 )
 
 func initGoTestField() *pb2.GoTestField {

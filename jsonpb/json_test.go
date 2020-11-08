@@ -13,18 +13,17 @@ import (
 	"reflect"
 	"strings"
 	"testing"
-
-	"github.com/MintegralTech/protobuf/proto"
-	"github.com/MintegralTech/protobuf/ptypes"
+	"github.com/golang/protobuf/proto"
+	"github.com/golang/protobuf/ptypes"
 
 	pb2 "github.com/MintegralTech/protobuf/internal/testprotos/jsonpb_proto"
 	pb3 "github.com/MintegralTech/protobuf/internal/testprotos/proto3_proto"
 	descpb "github.com/MintegralTech/protobuf/protoc-gen-go/descriptor"
-	anypb "github.com/MintegralTech/protobuf/ptypes/any"
-	durpb "github.com/MintegralTech/protobuf/ptypes/duration"
-	stpb "github.com/MintegralTech/protobuf/ptypes/struct"
-	tspb "github.com/MintegralTech/protobuf/ptypes/timestamp"
-	wpb "github.com/MintegralTech/protobuf/ptypes/wrappers"
+	anypb "github.com/golang/protobuf/ptypes/any"
+	durpb "github.com/golang/protobuf/ptypes/duration"
+	stpb "github.com/golang/protobuf/ptypes/struct"
+	tspb "github.com/golang/protobuf/ptypes/timestamp"
+	wpb "github.com/golang/protobuf/ptypes/wrappers"
 )
 
 var (
