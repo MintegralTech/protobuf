@@ -109,7 +109,7 @@ func main() {
 		panic("gengo error: " + resp.GetError())
 	}
 	for _, file := range resp.File {
-		relPath, err := filepath.Rel(filepath.FromSlash("github.com/golang/protobuf"), file.GetName())
+		relPath, err := filepath.Rel(filepath.FromSlash("github.com/MintegralTech/protobuf"), file.GetName())
 		check(err)
 
 		check(ioutil.WriteFile(relPath+".bak", []byte(file.GetContent()), 0664))

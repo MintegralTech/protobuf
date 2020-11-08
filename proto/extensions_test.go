@@ -13,7 +13,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/golang/protobuf/proto"
+	"github.com/MintegralTech/protobuf/proto"
 
 	pb2 "github.com/MintegralTech/protobuf/internal/testprotos/proto2_proto"
 )
