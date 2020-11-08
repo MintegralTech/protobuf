@@ -41,7 +41,7 @@ import (
 
 func init() {
 	fmt.Fprint(os.Stderr,
-		"WARNING: Package \"github.com/golang/protobuf/protoc-gen-go/generator\" is deprecated.\n"+
+		"WARNING: Package \"github.com/MintegralTech/protobuf/protoc-gen-go/generator\" is deprecated.\n"+
 			"\tA future release of golang/protobuf will delete this package,\n"+
 			"\twhich has long been excluded from the compatibility promise.\n\n")
 }
@@ -1300,7 +1300,7 @@ func (g *Generator) generateImports() {
 	g.P("import (")
 	g.P(g.Pkg["fmt"] + ` "fmt"`)
 	g.P(g.Pkg["math"] + ` "math"`)
-	g.P(g.Pkg["proto"]+" ", GoImportPath(g.ImportPrefix)+"github.com/golang/protobuf/proto")
+	g.P(g.Pkg["proto"]+" ", GoImportPath(g.ImportPrefix)+"github.com/MintegralTech/protobuf/proto")
 	for importPath, packageName := range imports {
 		g.P(packageName, " ", GoImportPath(g.ImportPrefix)+importPath)
 	}

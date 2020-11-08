@@ -16,7 +16,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/golang/protobuf/proto"
+	"github.com/MintegralTech/protobuf/proto"
 	gengo "google.golang.org/protobuf/cmd/protoc-gen-go/internal_gengo"
 	"google.golang.org/protobuf/compiler/protogen"
 	"google.golang.org/protobuf/reflect/protodesc"
@@ -109,7 +109,7 @@ func main() {
 		panic("gengo error: " + resp.GetError())
 	}
 	for _, file := range resp.File {
-		relPath, err := filepath.Rel(filepath.FromSlash("github.com/golang/protobuf"), file.GetName())
+		relPath, err := filepath.Rel(filepath.FromSlash("github.com/MintegralTech/protobuf"), file.GetName())
 		check(err)
 
 		check(ioutil.WriteFile(relPath+".bak", []byte(file.GetContent()), 0664))
