@@ -357,7 +357,7 @@ func genServerDefine(gen *protogen.Plugin, file *protogen.File, g *protogen.Gene
 		g.P("return i, e")
 		return wname
 	}
-	return ""
+	return wname
 }
 
 func genServerMethod(gen *protogen.Plugin, file *protogen.File, g *protogen.GeneratedFile, method *protogen.Method) string {
