@@ -348,7 +348,7 @@ func genServerDefine(gen *protogen.Plugin, file *protogen.File, g *protogen.Gene
 		g.P("func ", wname, "(srv interface{}, ctx ", contextPackage.Ident("Context"), ", dec func(interface{}) error, interceptor ", grpcPackage.Ident("UnaryServerInterceptor"), ") (interface{}, error) {")
 		g.P("")
 		g.P("afterFun := ", metricsPackage.Ident("ServerRequestBegin"), "(&", metricsPackage.Ident("ServerMeta"), "{")
-		g.P("Ip: ", "")
+		g.P("Ip: ", " ", ",")
 		g.P("Server: ", strconv.Quote(string(service.Desc.FullName())), ",")
 		g.P("Method: ", strconv.Quote(fmt.Sprintf("/%s/%s", service.Desc.FullName(), method.GoName)), ",")
 		g.P("})")
