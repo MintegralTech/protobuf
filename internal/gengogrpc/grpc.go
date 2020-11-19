@@ -86,10 +86,10 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 	g.P()
 
 	// Client structure.
-	g.P("type ", unexport(clientName), " struct {")
-	g.P("cc ", grpcPackage.Ident("ClientConnInterface"))
-	g.P("}")
-	g.P()
+	//g.P("type ", unexport(clientName), " struct {")
+	//g.P("cc ", grpcPackage.Ident("ClientConnInterface"))
+	//g.P("}")
+	//g.P()
 
 	// Client structure.
 	g.P("type ", unexport(poolName), " struct {")
@@ -101,18 +101,18 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 	if service.Desc.Options().(*descriptorpb.ServiceOptions).GetDeprecated() {
 		g.P(deprecationComment)
 	}
-	g.P("func New", clientName, " (cc ", grpcPackage.Ident("ClientConnInterface"), ") ", clientName, " {")
-	g.P("return &", unexport(clientName), "{cc}")
-	g.P("}")
-	g.P()
+	//g.P("func New", clientName, " (cc ", grpcPackage.Ident("ClientConnInterface"), ") ", clientName, " {")
+	//g.P("return &", unexport(clientName), "{cc}")
+	//g.P("}")
+	//g.P()
 
-	g.P("func New", poolName, " (consulAddr, serverName string) (", clientName, "error)", " {")
+	g.P("func New", poolName, " (consulAddr, serverName string) (", clientName, ", error)", " {")
 
-	g.P("resolver, err := *", balancerPackage.Ident("RpcPool"), "(consulAddr, serverName, 200, 10*time.Second)")
+	g.P("resolver, err := *", balancerPackage.Ident("NewRpcPool"), "(consulAddr, serverName, 200, 10*time.Second)")
 	g.P("if err != nil {")
 	g.P("return nil, err")
 	g.P("}")
-	g.P("return &", unexport(clientName), "Pool{resolver}, nil")
+	g.P("return &", unexport(poolName), "{resolver}, nil")
 	g.P("}")
 	g.P()
 
@@ -247,7 +247,7 @@ func genClientMethod(gen *protogen.Plugin, file *protogen.File, g *protogen.Gene
 		g.P("out := new(", method.Output.GoIdent, ")")
 		g.P("conn, closeFunc, err := c.pool.GetConnect(ctx)")
 		g.P("defer closeFunc()")
-		g.P(`err := c.cc.Invoke(ctx, "`, sname, `", in, out, opts...)`)
+		g.P(`err = conn.ClientConn.Invoke(ctx, "`, sname, `", in, out, opts...)`)
 		g.P("if err != nil { return nil, err }")
 		g.P("return out, nil")
 		g.P("}")
