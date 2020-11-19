@@ -16,10 +16,11 @@ import (
 )
 
 const (
-	contextPackage = protogen.GoImportPath("context")
-	grpcPackage    = protogen.GoImportPath("google.golang.org/grpc")
-	codesPackage   = protogen.GoImportPath("google.golang.org/grpc/codes")
-	statusPackage  = protogen.GoImportPath("google.golang.org/grpc/status")
+	contextPackage  = protogen.GoImportPath("context")
+	grpcPackage     = protogen.GoImportPath("google.golang.org/grpc")
+	codesPackage    = protogen.GoImportPath("google.golang.org/grpc/codes")
+	statusPackage   = protogen.GoImportPath("google.golang.org/grpc/status")
+	balancerPackage = protogen.GoImportPath("gitlab.mobvista.com/voyager/mrpc/balancer")
 )
 
 // GenerateFile generates a _grpc.pb.go file containing gRPC service definitions.
@@ -60,6 +61,7 @@ func GenerateFileContent(gen *protogen.Plugin, file *protogen.File, g *protogen.
 
 func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.GeneratedFile, service *protogen.Service) {
 	clientName := service.GoName + "Client"
+	poolName := service.GoName + "Pool"
 
 	g.P("// ", clientName, " is the client API for ", service.GoName, " service.")
 	g.P("//")
@@ -89,12 +91,28 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 	g.P("}")
 	g.P()
 
+	// Client structure.
+	g.P("type ", unexport(poolName), " struct {")
+	g.P("pool *", balancerPackage.Ident("RpcPool"))
+	g.P("}")
+	g.P()
+
 	// NewClient factory.
 	if service.Desc.Options().(*descriptorpb.ServiceOptions).GetDeprecated() {
 		g.P(deprecationComment)
 	}
 	g.P("func New", clientName, " (cc ", grpcPackage.Ident("ClientConnInterface"), ") ", clientName, " {")
 	g.P("return &", unexport(clientName), "{cc}")
+	g.P("}")
+	g.P()
+
+	g.P("func New", poolName, " (consulAddr, serverName string) (", clientName, "error)", " {")
+
+	g.P("resolver, err := *", balancerPackage.Ident("RpcPool"), "(consulAddr, serverName, 200, 10*time.Second)")
+	g.P("if err != nil {")
+	g.P("return nil, err")
+	g.P("}")
+	g.P("return &", unexport(clientName), "Pool{resolver}, nil")
 	g.P("}")
 	g.P()
 
@@ -224,9 +242,11 @@ func genClientMethod(gen *protogen.Plugin, file *protogen.File, g *protogen.Gene
 	if method.Desc.Options().(*descriptorpb.MethodOptions).GetDeprecated() {
 		g.P(deprecationComment)
 	}
-	g.P("func (c *", unexport(service.GoName), "Client) ", clientSignature(g, method), "{")
+	g.P("func (c *", unexport(service.GoName), "Pool) ", clientSignature(g, method), "{")
 	if !method.Desc.IsStreamingServer() && !method.Desc.IsStreamingClient() {
 		g.P("out := new(", method.Output.GoIdent, ")")
+		g.P("conn, closeFunc, err := c.pool.GetConnect(ctx)")
+		g.P("defer closeFunc()")
 		g.P(`err := c.cc.Invoke(ctx, "`, sname, `", in, out, opts...)`)
 		g.P("if err != nil { return nil, err }")
 		g.P("return out, nil")
