@@ -180,11 +180,12 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 
 	// Server handler implementations.
 	var handlerNames []string
+	var wrapperNames []string
 	for _, method := range service.Methods {
 		hname := genServerMethod(gen, file, g, method)
 		wname := genServerDefine(gen, file, g, method)
 		handlerNames = append(handlerNames, hname)
-		handlerNames = append(handlerNames, wname)
+		wrapperNames = append(wrapperNames, wname)
 	}
 
 	// Service descriptor.
@@ -199,6 +200,7 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 		g.P("{")
 		g.P("MethodName: ", strconv.Quote(string(method.Desc.Name())), ",")
 		g.P("Handler: ", handlerNames[i], ",")
+		g.P("Wrapper: ", wrapperNames[i], ",")
 		g.P("},")
 	}
 	g.P("},")
@@ -210,6 +212,7 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 		g.P("{")
 		g.P("StreamName: ", strconv.Quote(string(method.Desc.Name())), ",")
 		g.P("Handler: ", handlerNames[i], ",")
+		g.P("Wrapper: ", wrapperNames[i], ",")
 		if method.Desc.IsStreamingServer() {
 			g.P("ServerStreams: true,")
 		}
