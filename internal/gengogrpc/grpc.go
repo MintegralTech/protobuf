@@ -7,10 +7,9 @@ package gengogrpc
 
 import (
 	"fmt"
+	"google.golang.org/protobuf/compiler/protogen"
 	"strconv"
 	"strings"
-
-	"google.golang.org/protobuf/compiler/protogen"
 
 	"google.golang.org/protobuf/types/descriptorpb"
 )
@@ -23,6 +22,7 @@ const (
 	balancerPackage = protogen.GoImportPath("gitlab.mobvista.com/voyager/mrpc/balancer")
 	mrpcPackage     = protogen.GoImportPath("gitlab.mobvista.com/voyager/mrpc")
 	metricsPackage  = protogen.GoImportPath("gitlab.mobvista.com/voyager/mrpc/metrics")
+	timePackage     = protogen.GoImportPath("time")
 )
 
 // GenerateFile generates a _grpc.pb.go file containing gRPC service definitions.
@@ -110,7 +110,7 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 
 	g.P("func New", poolName, " (consulAddr, serverName string) (", clientName, ", error)", " {")
 
-	g.P("resolver, err := ", balancerPackage.Ident("NewRpcPool"), "(consulAddr, serverName, 200, 10*time.Second)")
+	g.P("resolver, err := ", balancerPackage.Ident("NewRpcPool"), "(consulAddr, serverName, 200, 10*", timePackage.Ident("Second"), ")")
 	g.P("if err != nil {")
 	g.P("return nil, err")
 	g.P("}")
@@ -182,7 +182,7 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 	var handlerNames []string
 	//var wrapperNames []string
 	for _, method := range service.Methods {
-		hname := genServerMethod(gen, file, g, method)
+		hname := genServerDefine(gen, file, g, method)
 		//wname := genServerDefine(gen, file, g, method)
 		handlerNames = append(handlerNames, hname)
 		//wrapperNames = append(wrapperNames, wname)
