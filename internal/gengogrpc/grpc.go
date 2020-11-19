@@ -180,12 +180,9 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 
 	// Server handler implementations.
 	var handlerNames []string
-	//var wrapperNames []string
 	for _, method := range service.Methods {
-		hname := genServerDefine(gen, file, g, method)
-		//wname := genServerDefine(gen, file, g, method)
+		hname := genServerMethod(gen, file, g, method)
 		handlerNames = append(handlerNames, hname)
-		//wrapperNames = append(wrapperNames, wname)
 	}
 
 	// Service descriptor.
@@ -339,27 +336,6 @@ func serverSignature(g *protogen.GeneratedFile, method *protogen.Method) string 
 	return method.GoName + "(" + strings.Join(reqArgs, ", ") + ") " + ret
 }
 
-func genServerDefine(gen *protogen.Plugin, file *protogen.File, g *protogen.GeneratedFile, method *protogen.Method) string {
-	service := method.Parent
-	wname := fmt.Sprintf("_%s_%s_Handler_Wrapper", service.GoName, method.GoName)
-
-	if !method.Desc.IsStreamingClient() && !method.Desc.IsStreamingServer() {
-
-		g.P("func ", wname, "(srv interface{}, ctx ", contextPackage.Ident("Context"), ", dec func(interface{}) error, interceptor ", grpcPackage.Ident("UnaryServerInterceptor"), ") (interface{}, error) {")
-		g.P("")
-		g.P("afterFun := ", metricsPackage.Ident("ServerRequestBegin"), "(&", metricsPackage.Ident("ServerMeta"), "{")
-		g.P("Ip: ", "\"\"", ",")
-		g.P("Server: ", strconv.Quote(string(service.Desc.FullName())), ",")
-		g.P("Method: ", strconv.Quote(fmt.Sprintf("/%s/%s", service.Desc.FullName(), method.GoName)), ",")
-		g.P("})")
-		g.P("i, e := ", fmt.Sprintf("_%s_%s_Handler", service.GoName, method.GoName))
-		g.P("afterFun(&", metricsPackage.Ident("ServerMeta{Err:e}"))
-		g.P("return i, e")
-		return wname
-	}
-	return wname
-}
-
 func genServerMethod(gen *protogen.Plugin, file *protogen.File, g *protogen.GeneratedFile, method *protogen.Method) string {
 	service := method.Parent
 	hname := fmt.Sprintf("_%s_%s_Handler", service.GoName, method.GoName)
@@ -367,6 +343,11 @@ func genServerMethod(gen *protogen.Plugin, file *protogen.File, g *protogen.Gene
 	if !method.Desc.IsStreamingClient() && !method.Desc.IsStreamingServer() {
 		g.P("func ", hname, "(srv interface{}, ctx ", contextPackage.Ident("Context"), ", dec func(interface{}) error, interceptor ", grpcPackage.Ident("UnaryServerInterceptor"), ") (interface{}, error) {")
 		g.P("in := new(", method.Input.GoIdent, ")")
+		g.P("afterFun := ", metricsPackage.Ident("ServerRequestBegin"), "(&", metricsPackage.Ident("ServerMeta"), "{")
+		g.P("Ip: ", "\"\"", ",")
+		g.P("Server: ", strconv.Quote(string(service.Desc.FullName())), ",")
+		g.P("Method: ", strconv.Quote(fmt.Sprintf("/%s/%s", service.Desc.FullName(), method.GoName)), ",")
+		g.P("})")
 		g.P("if err := dec(in); err != nil { return nil, err }")
 		g.P("if interceptor == nil { return srv.(", service.GoName, "Server).", method.GoName, "(ctx, in) }")
 		g.P("info := &", grpcPackage.Ident("UnaryServerInfo"), "{")
@@ -376,7 +357,9 @@ func genServerMethod(gen *protogen.Plugin, file *protogen.File, g *protogen.Gene
 		g.P("handler := func(ctx ", contextPackage.Ident("Context"), ", req interface{}) (interface{}, error) {")
 		g.P("return srv.(", service.GoName, "Server).", method.GoName, "(ctx, req.(*", method.Input.GoIdent, "))")
 		g.P("}")
-		g.P("return interceptor(ctx, in, info, handler)")
+		g.P("i, e := interceptor(ctx, in, info, handler)")
+		g.P("afterFun(&", metricsPackage.Ident("ServerMeta"), "{Err:e}")
+		g.P("return i, e")
 		g.P("}")
 		g.P()
 		return hname
