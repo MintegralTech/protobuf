@@ -358,7 +358,7 @@ func genServerMethod(gen *protogen.Plugin, file *protogen.File, g *protogen.Gene
 		g.P("return srv.(", service.GoName, "Server).", method.GoName, "(ctx, req.(*", method.Input.GoIdent, "))")
 		g.P("}")
 		g.P("i, e := interceptor(ctx, in, info, handler)")
-		g.P("afterFun(&", metricsPackage.Ident("ServerMeta"), "{Err:e}")
+		g.P("afterFun(&", metricsPackage.Ident("ServerMeta"), "{Err:e})")
 		g.P("return i, e")
 		g.P("}")
 		g.P()
