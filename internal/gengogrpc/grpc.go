@@ -180,12 +180,12 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 
 	// Server handler implementations.
 	var handlerNames []string
-	var wrapperNames []string
+	//var wrapperNames []string
 	for _, method := range service.Methods {
 		hname := genServerMethod(gen, file, g, method)
-		wname := genServerDefine(gen, file, g, method)
+		//wname := genServerDefine(gen, file, g, method)
 		handlerNames = append(handlerNames, hname)
-		wrapperNames = append(wrapperNames, wname)
+		//wrapperNames = append(wrapperNames, wname)
 	}
 
 	// Service descriptor.
@@ -200,7 +200,7 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 		g.P("{")
 		g.P("MethodName: ", strconv.Quote(string(method.Desc.Name())), ",")
 		g.P("Handler: ", handlerNames[i], ",")
-		g.P("Wrapper: ", wrapperNames[i], ",")
+		//g.P("Wrapper: ", wrapperNames[i], ",")
 		g.P("},")
 	}
 	g.P("},")
@@ -212,7 +212,7 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 		g.P("{")
 		g.P("StreamName: ", strconv.Quote(string(method.Desc.Name())), ",")
 		g.P("Handler: ", handlerNames[i], ",")
-		g.P("Wrapper: ", wrapperNames[i], ",")
+		//g.P("Wrapper: ", wrapperNames[i], ",")
 		if method.Desc.IsStreamingServer() {
 			g.P("ServerStreams: true,")
 		}
@@ -348,7 +348,7 @@ func genServerDefine(gen *protogen.Plugin, file *protogen.File, g *protogen.Gene
 		g.P("func ", wname, "(srv interface{}, ctx ", contextPackage.Ident("Context"), ", dec func(interface{}) error, interceptor ", grpcPackage.Ident("UnaryServerInterceptor"), ") (interface{}, error) {")
 		g.P("")
 		g.P("afterFun := ", metricsPackage.Ident("ServerRequestBegin"), "(&", metricsPackage.Ident("ServerMeta"), "{")
-		g.P("Ip: ", " ", ",")
+		g.P("Ip: ", "\"\"", ",")
 		g.P("Server: ", strconv.Quote(string(service.Desc.FullName())), ",")
 		g.P("Method: ", strconv.Quote(fmt.Sprintf("/%s/%s", service.Desc.FullName(), method.GoName)), ",")
 		g.P("})")
