@@ -21,6 +21,8 @@ const (
 	codesPackage    = protogen.GoImportPath("google.golang.org/grpc/codes")
 	statusPackage   = protogen.GoImportPath("google.golang.org/grpc/status")
 	balancerPackage = protogen.GoImportPath("gitlab.mobvista.com/voyager/mrpc/balancer")
+	mrpcPackage     = protogen.GoImportPath("gitlab.mobvista.com/voyager/mrpc")
+	metricsPackage  = protogen.GoImportPath("gitlab.mobvista.com/voyager/mrpc/metrics")
 )
 
 // GenerateFile generates a _grpc.pb.go file containing gRPC service definitions.
@@ -108,7 +110,7 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 
 	g.P("func New", poolName, " (consulAddr, serverName string) (", clientName, ", error)", " {")
 
-	g.P("resolver, err := *", balancerPackage.Ident("NewRpcPool"), "(consulAddr, serverName, 200, 10*time.Second)")
+	g.P("resolver, err := ", balancerPackage.Ident("NewRpcPool"), "(consulAddr, serverName, 200, 10*time.Second)")
 	g.P("if err != nil {")
 	g.P("return nil, err")
 	g.P("}")
@@ -171,7 +173,7 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 		g.P(deprecationComment)
 	}
 	serviceDescVar := "_" + service.GoName + "_serviceDesc"
-	g.P("func Register", service.GoName, "Server(s *", grpcPackage.Ident("Server"), ", srv ", serverType, ") {")
+	g.P("func Register", service.GoName, "Server(s *", mrpcPackage.Ident("Server"), ", srv ", serverType, ") {")
 	g.P("s.RegisterService(&", serviceDescVar, `, srv)`)
 	g.P("}")
 	g.P()
@@ -180,7 +182,9 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 	var handlerNames []string
 	for _, method := range service.Methods {
 		hname := genServerMethod(gen, file, g, method)
+		wname := genServerDefine(gen, file, g, method)
 		handlerNames = append(handlerNames, hname)
+		handlerNames = append(handlerNames, wname)
 	}
 
 	// Service descriptor.
@@ -330,6 +334,27 @@ func serverSignature(g *protogen.GeneratedFile, method *protogen.Method) string 
 		reqArgs = append(reqArgs, method.Parent.GoName+"_"+method.GoName+"Server")
 	}
 	return method.GoName + "(" + strings.Join(reqArgs, ", ") + ") " + ret
+}
+
+func genServerDefine(gen *protogen.Plugin, file *protogen.File, g *protogen.GeneratedFile, method *protogen.Method) string {
+	service := method.Parent
+	wname := fmt.Sprintf("_%s_%s_Handler_Wrapper", service.GoName, method.GoName)
+
+	if !method.Desc.IsStreamingClient() && !method.Desc.IsStreamingServer() {
+
+		g.P("func ", wname, "(srv interface{}, ctx ", contextPackage.Ident("Context"), ", dec func(interface{}) error, interceptor ", grpcPackage.Ident("UnaryServerInterceptor"), ") (interface{}, error) {")
+		g.P("")
+		g.P("afterFun := ", metricsPackage.Ident("ServerRequestBegin"), "(&", metricsPackage.Ident("ServerMeta"), "{")
+		g.P("Ip: ", "")
+		g.P("Server: ", strconv.Quote(string(service.Desc.FullName())), ",")
+		g.P("Method: ", strconv.Quote(fmt.Sprintf("/%s/%s", service.Desc.FullName(), method.GoName)), ",")
+		g.P("})")
+		g.P("i, e := ", fmt.Sprintf("_%s_%s_Handler", service.GoName, method.GoName))
+		g.P("afterFun(&", metricsPackage.Ident("ServerMeta{Err:e}"))
+		g.P("return i, e")
+		return wname
+	}
+	return ""
 }
 
 func genServerMethod(gen *protogen.Plugin, file *protogen.File, g *protogen.GeneratedFile, method *protogen.Method) string {
