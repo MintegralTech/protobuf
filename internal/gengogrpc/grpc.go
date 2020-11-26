@@ -260,7 +260,7 @@ func genClientMethod(gen *protogen.Plugin, file *protogen.File, g *protogen.Gene
 		g.P("}")
 		g.P("defer closeFunc()")
 		g.P(`err = conn.ClientConn.Invoke(ctx, "`, sname, `", in, out, opts...)`)
-		g.P("afterFun(&", metricsPackage.Ident("ClientMeta"), "Err: err")
+		g.P("afterFun(&", metricsPackage.Ident("ClientMeta"), "{Err: err})")
 		g.P("if err != nil { return nil, err }")
 		g.P("return out, nil")
 		g.P("}")
