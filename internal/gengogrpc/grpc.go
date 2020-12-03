@@ -362,7 +362,7 @@ func genServerMethod(gen *protogen.Plugin, file *protogen.File, g *protogen.Gene
 		g.P("return nil, err")
 		g.P("}")
 		g.P("if interceptor == nil {")
-		g.P("afterFun(&", metricsPackage.Ident("ServerMeta"), "{Err:", errorsPackage.Ident("New"), "(", "interceptor is nil", ")})")
+		g.P("afterFun(&", metricsPackage.Ident("ServerMeta"), "{Err:", errorsPackage.Ident("New"), "(\"interceptor is nil\")})")
 		g.P("return srv.(", service.GoName, "Server).", method.GoName, "(ctx, in)")
 		g.P("}")
 		g.P("info := &", grpcPackage.Ident("UnaryServerInfo"), "{")
