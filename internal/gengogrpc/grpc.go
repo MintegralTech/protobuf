@@ -89,10 +89,10 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 	g.P()
 
 	// Client structure.
-	//g.P("type ", unexport(clientName), " struct {")
-	//g.P("cc ", grpcPackage.Ident("ClientConnInterface"))
-	//g.P("}")
-	//g.P()
+	g.P("type ", unexport(clientName), " struct {")
+	g.P("cc ", grpcPackage.Ident("ClientConnInterface"))
+	g.P("}")
+	g.P()
 
 	// Client structure.
 	g.P("type ", unexport(poolName), " struct {")
@@ -104,10 +104,10 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 	if service.Desc.Options().(*descriptorpb.ServiceOptions).GetDeprecated() {
 		g.P(deprecationComment)
 	}
-	//g.P("func New", clientName, " (cc ", grpcPackage.Ident("ClientConnInterface"), ") ", clientName, " {")
-	//g.P("return &", unexport(clientName), "{cc}")
-	//g.P("}")
-	//g.P()
+	g.P("func New", clientName, " (cc ", grpcPackage.Ident("ClientConnInterface"), ") ", clientName, " {")
+	g.P("return &", unexport(clientName), "{cc}")
+	g.P("}")
+	g.P()
 
 	g.P("func New", poolName, " (consulAddr, serverName string, capacity int, timeout time.Duration) (", clientName, ", error)", " {")
 
