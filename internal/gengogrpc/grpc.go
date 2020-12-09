@@ -252,7 +252,6 @@ func genClientMethod(gen *protogen.Plugin, file *protogen.File, g *protogen.Gene
 		g.P("return out, nil")
 		g.P("}")
 		g.P()
-		return
 	}
 	g.P("func (c *", unexport(service.GoName), "Pool) ", clientSignature(g, method), "{")
 	if !method.Desc.IsStreamingServer() && !method.Desc.IsStreamingClient() {
