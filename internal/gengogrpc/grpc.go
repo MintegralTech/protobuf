@@ -8,10 +8,9 @@ package gengogrpc
 import (
 	"fmt"
 	"google.golang.org/protobuf/compiler/protogen"
+	"google.golang.org/protobuf/types/descriptorpb"
 	"strconv"
 	"strings"
-
-	"google.golang.org/protobuf/types/descriptorpb"
 )
 
 const (
@@ -244,6 +243,16 @@ func genClientMethod(gen *protogen.Plugin, file *protogen.File, g *protogen.Gene
 
 	if method.Desc.Options().(*descriptorpb.MethodOptions).GetDeprecated() {
 		g.P(deprecationComment)
+	}
+	g.P("func (c *", unexport(service.GoName), "Client) ", clientSignature(g, method), "{")
+	if !method.Desc.IsStreamingServer() && !method.Desc.IsStreamingClient() {
+		g.P("out := new(", method.Output.GoIdent, ")")
+		g.P(`err := c.cc.Invoke(ctx, "`, sname, `", in, out, opts...)`)
+		g.P("if err != nil { return nil, err }")
+		g.P("return out, nil")
+		g.P("}")
+		g.P()
+		return
 	}
 	g.P("func (c *", unexport(service.GoName), "Pool) ", clientSignature(g, method), "{")
 	if !method.Desc.IsStreamingServer() && !method.Desc.IsStreamingClient() {
