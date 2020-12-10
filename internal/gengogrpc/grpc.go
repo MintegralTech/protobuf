@@ -22,7 +22,6 @@ const (
 	mrpcPackage     = protogen.GoImportPath("gitlab.mobvista.com/voyager/mrpc")
 	metricsPackage  = protogen.GoImportPath("gitlab.mobvista.com/voyager/mrpc/metrics")
 	timePackage     = protogen.GoImportPath("time")
-	errorsPackage   = protogen.GoImportPath("errors")
 )
 
 // GenerateFile generates a _grpc.pb.go file containing gRPC service definitions.
@@ -370,8 +369,9 @@ func genServerMethod(gen *protogen.Plugin, file *protogen.File, g *protogen.Gene
 		g.P("return nil, err")
 		g.P("}")
 		g.P("if interceptor == nil {")
-		g.P("afterFun(&", metricsPackage.Ident("ServerMeta"), "{Err:", errorsPackage.Ident("New"), "(\"interceptor is nil\")", "})")
-		g.P("return srv.(", service.GoName, "Server).", method.GoName, "(ctx, in)")
+		g.P("a, e := srv.(", service.GoName, "Server).", method.GoName, "(ctx, in)")
+		g.P("afterFun(&", metricsPackage.Ident("ServerMeta"), "{Err:e})")
+		g.P("return a, e")
 		g.P("}")
 		g.P("info := &", grpcPackage.Ident("UnaryServerInfo"), "{")
 		g.P("Server: srv,")
