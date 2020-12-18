@@ -108,8 +108,16 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 	g.P()
 
 	g.P("func New", poolName, " (consulAddr, serverName string, capacity int, timeout time.Duration) (", clientName, ", error)", " {")
-
 	g.P("resolver, err := ", balancerPackage.Ident("NewRpcPool"), "(consulAddr, serverName, capacity, timeout*", timePackage.Ident("Second"), ")")
+	g.P("if err != nil {")
+	g.P("return nil, err")
+	g.P("}")
+	g.P("return &", unexport(poolName), "{resolver}, nil")
+	g.P("}")
+	g.P()
+
+	g.P("func New", poolName, " (consulAddr, path string) (", clientName, ", error)", " {")
+	g.P("resolver, err := ", balancerPackage.Ident("NewRpcPoolWithConsul"), "(consulAddr, path)")
 	g.P("if err != nil {")
 	g.P("return nil, err")
 	g.P("}")
