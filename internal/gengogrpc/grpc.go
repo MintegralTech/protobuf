@@ -264,7 +264,7 @@ func genClientMethod(gen *protogen.Plugin, file *protogen.File, g *protogen.Gene
 	if !method.Desc.IsStreamingServer() && !method.Desc.IsStreamingClient() {
 		g.P("out := new(", method.Output.GoIdent, ")")
 		g.P("afterFun := ", metricsPackage.Ident("ClientRequestBegin"), "(&", metricsPackage.Ident("ClientMeta"), "{")
-		g.P("Ip: ", mrpcPackage.Ident("GetIp"), ",")
+		g.P("Ip: ", mrpcPackage.Ident("GetIp"), "(),")
 		g.P("Server: ", strconv.Quote(string(service.Desc.FullName())), ",")
 		g.P("Method: ", strconv.Quote(fmt.Sprintf("/%s/%s", service.Desc.FullName(), method.GoName)), ",")
 		g.P("})")
@@ -368,7 +368,7 @@ func genServerMethod(gen *protogen.Plugin, file *protogen.File, g *protogen.Gene
 		g.P("func ", hname, "(srv interface{}, ctx ", contextPackage.Ident("Context"), ", dec func(interface{}) error, interceptor ", grpcPackage.Ident("UnaryServerInterceptor"), ") (interface{}, error) {")
 		g.P("in := new(", method.Input.GoIdent, ")")
 		g.P("afterFun := ", metricsPackage.Ident("ServerRequestBegin"), "(&", metricsPackage.Ident("ServerMeta"), "{")
-		g.P("Ip: ", mrpcPackage.Ident("GetIp"), ",")
+		g.P("Ip: ", mrpcPackage.Ident("GetIp"), "(),")
 		g.P("Server: ", strconv.Quote(string(service.Desc.FullName())), ",")
 		g.P("Method: ", strconv.Quote(fmt.Sprintf("/%s/%s", service.Desc.FullName(), method.GoName)), ",")
 		g.P("})")
