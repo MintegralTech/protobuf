@@ -116,8 +116,8 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 	g.P("}")
 	g.P()
 
-	g.P("func New", poolName, "V2 (consulAddr, path string) (", clientName, ", error)", " {")
-	g.P("resolver, err := ", balancerPackage.Ident("NewRpcPoolWithConsul"), "(consulAddr, path)")
+	g.P("func New", poolName, "V2 (path string) (", clientName, ", error)", " {")
+	g.P("resolver, err := ", balancerPackage.Ident("NewRpcPoolWithConsul"), "(path)")
 	g.P("if err != nil {")
 	g.P("return nil, err")
 	g.P("}")
