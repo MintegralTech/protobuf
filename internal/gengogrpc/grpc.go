@@ -108,7 +108,7 @@ func genService(gen *protogen.Plugin, file *protogen.File, g *protogen.Generated
 	g.P()
 
 	g.P("func New", poolName, " (consulAddr, serverName string, capacity int, timeout time.Duration) (", clientName, ", error)", " {")
-	g.P("resolver, err := ", balancerPackage.Ident("NewRpcPool"), "(consulAddr, serverName, capacity, timeout*", timePackage.Ident("Second"), ")")
+	g.P("resolver, err := ", balancerPackage.Ident("NewRpcPool"), "(consulAddr, serverName, capacity, timeout", ")")
 	g.P("if err != nil {")
 	g.P("return nil, err")
 	g.P("}")
